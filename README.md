@@ -1,4 +1,4 @@
-# innopixel-kontrolpanel
+# Innopixel Kontrolpanel
 Et .NET MAUI kontrolpanel til Innopixel ApS. Lavet i 4. semester i UCL.
 
 Portefølje:
