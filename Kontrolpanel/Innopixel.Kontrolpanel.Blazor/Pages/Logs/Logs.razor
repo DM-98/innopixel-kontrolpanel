@@ -1,0 +1,98 @@
+﻿@page "/logs"
+@inject LogService LogService
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Logs</h3>
+<hr />
+@if (hasRendered)
+{
+	<div class="row">
+		<Virtualize Context="log" Items="logs">
+			<div class="col-6 col-sm-12 col-md-6 col-lg-4 col-xl-4 mh-25 mb-4">
+				<div class="card shadow-sm rounded">
+					<div class="card-header">
+						<h5 class="card-text"><b>@log.CreatedDate (ID: @log.Id)</b></h5>
+					</div>
+					<div class="card-body">
+						<p class="card-text">Beskrivelse: @log.Description</p>
+						<p class="card-text">UserId: @log.UserId</p>
+					</div>
+					<div class="card-footer">
+						<button class="btn btn-danger" @onclick="() => DeleteLogAsync(log.Id)">Slet</button>
+					</div>
+				</div>
+			</div>
+		</Virtualize>
+	</div>
+}
+else
+{
+	if (isEmpty)
+	{
+		<p>Ingen logs i databasen.</p>
+	}
+	else
+	{
+		<div class="spinner"></div>
+	}
+}
+<span style="color:red;">@errorMessage</span>
+
+@code {
+	private List<Log> logs = new();
+	private bool isEmpty;
+	private bool hasRendered;
+	private string errorMessage = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetLogsAsync();
+	}
+
+	private async Task GetLogsAsync()
+	{
+		if (logs.Count is not 0)
+		{
+			logs.Clear();
+		}
+
+		hasRendered = false;
+
+		try
+		{
+			IAsyncEnumerable<Log> result = LogService.GetAllAsync();
+
+			await foreach (Log log in result)
+			{
+				await InvokeAsync(() =>
+				{
+					logs.Add(log);
+					StateHasChanged();
+				});
+			}
+		}
+		catch (Exception ex)
+		{
+			errorMessage = ex.Message;
+		}
+		finally
+		{
+			if (logs.Count is 0)
+			{
+				isEmpty = true;
+			}
+			else
+			{
+				isEmpty = false;
+			}			
+			
+			hasRendered = true;
+		}
+	}
+
+	private async Task DeleteLogAsync(int id)
+	{
+		await LogService.DeleteAsync(id);
+		logs.RemoveAll(log => log.Id == id);
+	}
+}
