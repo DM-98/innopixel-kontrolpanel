@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Innopixel.Kontrolpanel.MAUI.Views.Media.UploadVideoPage"
+             xmlns:vm="clr-namespace:Innopixel.Kontrolpanel.MAUI.ViewModels.Media"
+             xmlns:model="clr-namespace:Innopixel.Kontrolpanel.Core.Domain;assembly=Innopixel.Kontrolpanel.Core"
+             x:DataType="vm:UploadVideoViewModel"
+             Title="Upload en video">
+
+	<ScrollView>
+		<VerticalStackLayout Spacing="15" Padding="10">
+			<Label Text="Ingen forbindelse til internettet." TextColor="Red" FontSize="20" HorizontalTextAlignment="Center" IsVisible="{Binding HasNoConnection}" Padding="20" />
+			<Button Text="Vælg en anden video" HorizontalOptions="Center" Command="{Binding ChooseVideoCommand}" />
+			<Button Text="Tilføj en thumbnail" HorizontalOptions="Center" Command="{Binding AddThumbnailCommand}" />
+			<Image Source="{Binding ImageSource}" MaximumHeightRequest="250" />
+			<Label Text="Video navn" FontAttributes="Bold" />
+			<Entry Text="{Binding VideoName}" />
+			<Label Text="Video beskrivelse" FontAttributes="Bold" />
+			<Entry Text="{Binding VideoDescription}" />
+			<Label Text="Video type" FontAttributes="Bold" />
+			<Label Text="{Binding FileType}" />
+			<Button Text="Upload" Command="{Binding UploadCommand}" />
+			<Label Text="{Binding UploadErrorStatus}" TextColor="Red" />
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

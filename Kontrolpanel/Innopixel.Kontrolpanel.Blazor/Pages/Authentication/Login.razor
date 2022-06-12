@@ -1,0 +1,61 @@
+﻿@inject AuthService AuthService
+
+<PageTitle>Log ind - Innopixel</PageTitle>
+
+<h3>Log ind på Innopixel Kontrolpanel</h3>
+
+@if (showAuthenticationError)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>Der skete en fejl under log ind processen.</p>
+    </div>
+}
+<EditForm Model="loginModel" OnValidSubmit="ExecuteLogin" class="card card-body bg-light col-md-12">
+    <DataAnnotationsValidator />
+
+    <div class="form-group row">
+        <label for="email" class="form-label">Email:</label>
+        <div>
+            <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+            <ValidationMessage For="@(() => loginModel.Email)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-group row">
+        <label for="password" class="form-label">Adgangskode:</label>
+        <div>
+            <InputText type="password" id="password" class="form-control" @bind-Value="loginModel.Password" />
+            <ValidationMessage For="@(() => loginModel.Password)" />
+        </div>
+    </div>
+    <br />
+    <div class="form-check">
+        <InputCheckbox type="checkbox" class="form-check-input" id="rememberme" @bind-Value="loginModel.RememberMe" />
+        <label class="form-check-label" for="rememberme">Forbliv logget ind</label>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button type="submit" class="btn btn-success">Log ind</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private LoginDTO loginModel = new();
+    private bool showAuthenticationError;
+
+    private async Task ExecuteLogin()
+    {
+        bool loginSuccess = await AuthService.Login(loginModel);
+
+        if (loginSuccess)
+        {
+            this.StateHasChanged();
+        }
+        else
+        {
+            showAuthenticationError = true;
+        }
+    }
+}

@@ -1,0 +1,24 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <Authorizing>
+                    <p>Vent venligst mens vi tjekker, om du har tilladelser til at tilgå siden...</p>
+                    <div class="spinner"></div>
+                </Authorizing>
+                <NotAuthorized>
+                    <p>Du har ikke tilladelse til at se siden.</p>
+                    <p>Log ind med en bruger, der har tilladelser.</p>
+                    <a href="/logud" class="btn btn-success">Klik her</a>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Sti ikke fundet</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Der er ingenting i denne URI.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

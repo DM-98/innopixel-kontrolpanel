@@ -1,0 +1,228 @@
+﻿@page "/overview"
+@inject DisplayService DisplayService
+@inject VideoService VideoService
+@inject ImageService ImageService
+@inject LogService LogService
+
+<h3>Displays</h3>
+<hr />
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">CreatedDate</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">IsOn</th>
+            <th scope="col">ImagesCount</th>
+            <th scope="col">VideosCount</th>
+            <th scope="col">ImageFirstName</th>
+            <th scope="col">VideosFirstName</th>
+            <th scope="col">UpdatedDate</th>
+            <th scope="col">RowVersion</th>
+        </tr>
+    </thead>
+    <tbody>
+        <Virtualize Context="display" Items="displays">
+            <tr>
+                <th scope="row">@display.Id</th>
+                <td>@display.CreatedDate</td>
+                <td>@display.Name</td>
+                <td>@display.Description</td>
+                <td>@display.IsOn</td>
+                <td>@display.Images?.Count()</td>
+                <td>@display.Videos?.Count()</td>
+                <td>@(display.Images?.Count() > 0 ? display.Images.First().Name : "Ingen")</td>
+                <td>@(display.Videos?.Count() > 0 ? display.Videos.First().Name : "Ingen")</td>
+                <td>@display.UpdatedDate</td>
+                <td>@Convert.ToBase64String(display.RowVersion!)</td>
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+<h3>Videos</h3>
+<hr />
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">CreatedDate</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">FilePath</th>
+            <th scope="col">FileType</th>
+            <th scope="col">Frames</th>
+            <th scope="col">SubtitlesPath</th>
+            <th scope="col">ThumbnailPath</th>
+            <th scope="col">Tilkoblet display</th>
+            <th scope="col">UpdatedDate</th>
+            <th scope="col">RowVersion</th>
+        </tr>
+    </thead>
+    <tbody>
+        <Virtualize Context="video" Items="videos">
+            <tr>
+                <th scope="row">@video.Id</th>
+                <td>@video.CreatedDate</td>
+                <td>@video.Name</td>
+                <td>@video.Description</td>
+                <td>@video.FilePath</td>
+                <td>@video.FileType</td>
+                <td>@video.Frames</td>
+                <td>@video.SubtitlesPath</td>
+                <td>@video.ThumbnailPath</td>
+                <td>@(video.DisplayId is not null ? $"{video.Display!.Name} (Tændt: {video.Display.IsOn})" : "Ingen")</td>
+                <td>@video.UpdatedDate</td>
+                <td>@Convert.ToBase64String(video.RowVersion!)</td>
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+<h3>Images</h3>
+<hr />
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">CreatedDate</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">FilePath</th>
+            <th scope="col">FileType</th>
+            <th scope="col">Tilkoblet display</th>
+            <th scope="col">UpdatedDate</th>
+            <th scope="col">RowVersion</th>
+        </tr>
+    </thead>
+    <tbody>
+        <Virtualize Context="image" Items="images">
+            <tr>
+                <th scope="row">@image.Id</th>
+                <td>@image.CreatedDate</td>
+                <td>@image.Name</td>
+                <td>@image.Description</td>
+                <td>@image.FilePath</td>
+                <td>@image.FileType</td>
+                <td>@(image.DisplayId is not null ? $"{image.Display!.Name} (Tændt: {image.Display.IsOn})" : "Ingen")</td>
+                <td>@image.UpdatedDate</td>
+                <td>@Convert.ToBase64String(image.RowVersion!)</td>
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+<h3>Logs</h3>
+<hr />
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Description</th>
+            <th scope="col">CreatedDate</th>
+            <th scope="col">UserId</th>
+            <th scope="col">UpdatedDate</th>
+            <th scope="col">RowVersion</th>
+        </tr>
+    </thead>
+    <tbody>
+        <Virtualize Context="log" Items="logs">
+            <tr>
+                <th scope="row">@log.Id</th>
+                <td>@log.Description</td>
+                <td>@log.CreatedDate</td>
+                <td>@log.UserId</td>
+                <td>@log.UpdatedDate</td>
+                <td>@Convert.ToBase64String(log.RowVersion!)</td>
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+<hr />
+<p>@exception</p>
+
+@code {
+    List<Display> displays = new();
+    List<Video> videos = new();
+    List<Image> images = new();
+    List<Log> logs = new();
+    string? exception;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDisplaysAsync();
+        await GetVideosAsync();
+        await GetImagesAsync();
+        await GetLogsAsync();
+    }
+
+    private async Task GetDisplaysAsync()
+    {
+        try
+        {
+            displays = new();
+
+            await foreach(Display display in DisplayService.GetAllAsync())
+            {
+                displays.Add(display);
+                this.StateHasChanged();
+            }
+        }
+        catch(Exception ex)
+        {
+            exception = ex.Message;
+        }
+    }
+
+    private async Task GetVideosAsync()
+    {
+        try
+        {
+            videos = new();
+
+            await foreach(Video video in VideoService.GetAllAsync())
+            {
+                videos.Add(video);
+                this.StateHasChanged();
+            }
+        }
+        catch(Exception ex)
+        {
+            exception = ex.Message;
+        }
+    }
+
+    private async Task GetImagesAsync()
+    {
+        try
+        {
+            images = new();
+
+            await foreach(Image image in ImageService.GetAllAsync())
+            {
+                images.Add(image);
+                this.StateHasChanged();
+            }
+        }
+        catch(Exception ex)
+        {
+            exception = ex.Message;
+        }
+    }
+
+    private async Task GetLogsAsync()
+    {
+        try
+        {
+            logs = new();
+
+            await foreach(Log log in LogService.GetAllAsync())
+            {
+                logs.Add(log);
+                this.StateHasChanged();
+            }
+        }
+        catch(Exception ex)
+        {
+            exception = ex.Message;
+        }
+    }
+}

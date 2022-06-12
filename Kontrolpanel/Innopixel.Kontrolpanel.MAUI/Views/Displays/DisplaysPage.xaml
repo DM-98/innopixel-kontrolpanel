@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Innopixel.Kontrolpanel.MAUI.Views.Displays.DisplaysPage"
+             xmlns:vm="clr-namespace:Innopixel.Kontrolpanel.MAUI.ViewModels.Displays"
+             xmlns:model="clr-namespace:Innopixel.Kontrolpanel.Core.Domain;assembly=Innopixel.Kontrolpanel.Core"
+             x:DataType="vm:DisplaysViewModel"
+             Title="Displays">
+
+	<StackLayout>
+		<Button Text="+ Tilføj et nyt display" Command="{Binding UploadDisplayCommand}" CornerRadius="0" BackgroundColor="ForestGreen" FontAttributes="Bold" />
+		<Label Text="Ingen forbindelse til internettet." TextColor="Red" FontSize="20" HorizontalTextAlignment="Center" IsVisible="{Binding HasNoConnection}" Padding="20" />
+		<Label Text="Ingen displays fundet i databasen." TextColor="White" FontSize="20" HorizontalTextAlignment="Center" IsVisible="{Binding IsEmpty}" Padding="20" />
+		<RefreshView IsRefreshing="{Binding IsRefreshing}" RefreshColor="Cyan" Command="{Binding LoadDisplaysCommand}" Margin="0, 5, 0, 1">
+			<CollectionView ItemsSource="{Binding Displays}">
+				<CollectionView.ItemsLayout>
+					<GridItemsLayout Orientation="Vertical" Span="{OnIdiom Desktop=3, Phone=1, Tablet=3, TV=3, Watch=1, Default=1}" />
+				</CollectionView.ItemsLayout>
+				<CollectionView.ItemTemplate>
+					<DataTemplate x:DataType="model:Display">
+						<Grid Padding="5">
+							<Frame CornerRadius="5" Padding="10" VerticalOptions="Start">
+								<StackLayout Spacing="5">
+									<StackLayout Orientation="Horizontal">
+										<Label Text="{Binding Name}" FontAttributes="Bold" FontSize="23" TextColor="White" />
+										<StackLayout HorizontalOptions="EndAndExpand">
+											<Switch IsToggled="{Binding IsOn}" Toggled="Switch_Toggled" OnColor="LightGreen" ThumbColor="White" />
+										</StackLayout>
+									</StackLayout>
+									<StackLayout BindableLayout.ItemsSource="{Binding Videos}" Spacing="10">
+										<BindableLayout.ItemTemplate>
+											<DataTemplate x:DataType="model:Video">
+												<Grid Padding="0, 0">
+													<Frame CornerRadius="5" Padding="0" BackgroundColor="AliceBlue">
+														<Image Aspect="Fill" HeightRequest="{OnPlatform Android='200', WinUI='250', Default='200', iOS='200', Tizen='250', MacCatalyst='250', UWP='200'}">
+															<Image.Source>
+																<UriImageSource Uri="{Binding ThumbnailPath}" CachingEnabled="True" CacheValidity="14" />
+															</Image.Source>
+														</Image>
+													</Frame>
+												</Grid>
+											</DataTemplate>
+										</BindableLayout.ItemTemplate>
+									</StackLayout>
+									<StackLayout BindableLayout.ItemsSource="{Binding Images}">
+										<BindableLayout.ItemTemplate>
+											<DataTemplate x:DataType="model:Video">
+												<Grid Padding="0, 5">
+													<Frame CornerRadius="5" Padding="0" BackgroundColor="AliceBlue">
+														<Image WidthRequest="{OnPlatform Android='400', WinUI='500', Default='400', iOS='400', Tizen='400', MacCatalyst='400', UWP='400'}"
+																HeightRequest="{OnPlatform Android='200', WinUI='250', Default='200', iOS='200', Tizen='250', MacCatalyst='250', UWP='200'}">
+															<Image.Source>
+																<UriImageSource Uri="{Binding FilePath}" CachingEnabled="True" CacheValidity="14" />
+															</Image.Source>
+														</Image>
+													</Frame>
+												</Grid>
+											</DataTemplate>
+										</BindableLayout.ItemTemplate>
+									</StackLayout>
+									<Label Text="{Binding Description}" FontSize="16" TextColor="White" />
+								</StackLayout>
+							</Frame>
+						</Grid>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
+		</RefreshView>
+	</StackLayout>
+</ContentPage>

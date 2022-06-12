@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Innopixel.Kontrolpanel.MAUI.Views.Authentication.LoadingPage"
+			 xmlns:vm="clr-namespace:Innopixel.Kontrolpanel.MAUI.ViewModels.Authentication"
+			 x:DataType="vm:LoadingPageViewModel">
+
+	<StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+		<ActivityIndicator IsVisible="True" IsRunning="True" Color="LightGreen" HeightRequest="70" WidthRequest="70" />
+		<Label Text="Indlæser Innopixel Kontrolpanel..." FontSize="20" />
+	</StackLayout>
+</ContentPage>

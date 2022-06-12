@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
+		<AspNetCoreModuleName>AspNetCoreModule</AspNetCoreModuleName>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AssemblyVersion>1.1.0.0</AssemblyVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Rewrite" Version="2.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Innopixel.Kontrolpanel.Core\Innopixel.Kontrolpanel.Core.csproj" />
+	  <ProjectReference Include="..\Innopixel.Kontrolpanel.Infrastructure\Innopixel.Kontrolpanel.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>

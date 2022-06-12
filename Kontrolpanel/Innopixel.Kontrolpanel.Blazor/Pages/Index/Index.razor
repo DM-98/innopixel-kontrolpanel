@@ -1,0 +1,13 @@
+﻿@page "/"
+
+<PageTitle>Innopixel Kontrolpanel</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <h3>Innopixel Kontrolpanel</h3>
+        <p>Velkommen, @(context.User.FindFirst(ClaimTypes.Name)!.Value)!</p>
+    </Authorized>
+    <NotAuthorized>
+        <Login />
+    </NotAuthorized>
+</AuthorizeView>

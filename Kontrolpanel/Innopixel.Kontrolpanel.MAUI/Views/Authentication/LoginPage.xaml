@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="Innopixel.Kontrolpanel.MAUI.Views.Authentication.LoginPage"
+			 xmlns:vm="clr-namespace:Innopixel.Kontrolpanel.MAUI.ViewModels.Authentication"
+			 x:DataType="vm:LoginViewModel">
+
+	<ScrollView VerticalOptions="FillAndExpand" Margin="20">
+		<Frame>
+			<VerticalStackLayout Spacing="25">
+				<Label Text="Innopixel Kontrolpanel" FontSize="23" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center" />
+				<Entry FontSize="Large" Placeholder="Email" Text="{Binding LoginModel.Email}" />
+				<Entry FontSize="Large" Placeholder="Adgangskode" Text="{Binding LoginModel.Password}" IsPassword="True" />
+				<StackLayout Orientation="Horizontal">
+					<CheckBox x:Name="rememberMe" IsChecked="{Binding LoginModel.RememberMe}" />
+					<Label FontSize="Large" Text="Forbliv logget ind" TextColor="LightGray" VerticalOptions="Center" />
+					<StackLayout.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding TappedCommand}" CommandParameter="{Binding Source={x:Reference rememberMe}}" NumberOfTapsRequired="1" />
+					</StackLayout.GestureRecognizers>
+				</StackLayout>
+				<Button FontSize="Large" Text="Log ind" Command="{Binding LoginCommand}" BackgroundColor="ForestGreen" />
+				<Label Text="Ingen forbindelse til internettet. Log ind ikke muligt." TextColor="Red" FontSize="19" HorizontalTextAlignment="Center" IsVisible="{Binding HasNoConnection}" Padding="20" />
+				<Label Text="{Binding Response}" TextColor="Red" />
+				<Image Source="dotnet_bot" Aspect="AspectFit" />
+			</VerticalStackLayout>
+		</Frame>
+	</ScrollView>
+</ContentPage>

@@ -1,0 +1,531 @@
+﻿@page "/medier"
+@inject VideoService VideoService
+@inject ImageService ImageService
+@inject DisplayService DisplayService
+@inject LogService LogService
+@attribute [Authorize]
+
+<h3>Videoer</h3>
+<hr />
+@if (hasRendered)
+{
+	if (isEmptyVideos)
+	{
+		<p>Ingen videoer i databasen.</p>
+	}
+	else
+	{
+		<div class="row">
+			@foreach (var video in videos)
+			{
+				@if (isEditingVideos)
+				{
+					<div class="col-6 col-sm-12 col-md-6 col-lg-4 col-xl-4 mh-25 mb-4">
+						<div class="card">
+							<EditForm Model="video">
+								<div class="card-header">
+									<InputText class="form-control" @bind-Value="video.Name" />
+									@if (isConcurrencyVideo && concurrencyVideo?.Name != video.Name)
+									{
+										<p style="color: red;">Database video navn: @concurrencyVideo?.Name</p>
+									}
+								</div>
+								<div class="card-body">
+									@if (isConcurrencyVideo)
+									{
+										<p>Denne video er blevet ændret imellemtiden af en anden bruger. Dato for ændringen: <b>@concurrencyVideo?.UpdatedDate</b></p>
+										<p>Se databaseværdierne under inputfelterne markeret med rødt.</p>
+										<p>Ret til som nødvendigt i forhold til databaseværdierne, eller klik Annuller. Klik Gem igen for at gemme dine ændringer i databasen.</p>
+									}
+									<InputText class="form-control" @bind-Value="video.Description" />
+									@if (isConcurrencyVideo && concurrencyVideo?.Description != video.Description)
+									{
+										<p style="color: red;">Database video beskrivelse: @concurrencyVideo?.Description</p>
+									}
+									<br />
+									<InputText class="form-control" @bind-Value="video.FileType" />
+									@if (isConcurrencyVideo && concurrencyVideo?.FileType != video.FileType)
+									{
+										<p style="color: red;">Database video filtype: @concurrencyVideo?.FileType</p>
+									}
+									<br />
+									<InputText class="form-control" @bind-Value="video.FilePath" />
+									@if (isConcurrencyVideo && concurrencyVideo?.FilePath != video.FilePath)
+									{
+										<p style="color: red;">Database video filsti: @concurrencyVideo?.FilePath</p>
+									}
+									<br />
+									<InputText class="form-control" @bind-Value="video.SubtitlesPath" />
+									@if (isConcurrencyVideo && concurrencyVideo?.SubtitlesPath != video.SubtitlesPath)
+									{
+										<p style="color: red;">Database video filsti på undertekster: @concurrencyVideo?.SubtitlesPath</p>
+									}
+									<br />
+									<InputText class="form-control" @bind-Value="video.ThumbnailPath" />
+									@if (isConcurrencyVideo && concurrencyVideo?.ThumbnailPath != video.ThumbnailPath)
+									{
+										<p style="color: red;">Database video filsti på thumbnail: @concurrencyVideo?.ThumbnailPath</p>
+									}
+									<br />
+									<InputNumber class="form-control" @bind-Value="video.Frames" />
+									@if (isConcurrencyVideo && concurrencyVideo?.Frames != video.Frames)
+									{
+										<p style="color: red;">Database video frames: @concurrencyVideo?.Frames</p>
+									}
+									<br />
+									<b>Tilknytning til display:</b>
+									<InputSelect class="form-select" @bind-Value="video.DisplayId">
+										@if (video.DisplayId is null)
+										{
+							<option selected value="">Ingen</option>
+										}
+						@foreach (Display display in displays)
+										{
+							<option value="@display.Id">@display.Name (ID: @display.Id)</option>
+										}
+						@if (video.DisplayId is not null)
+										{
+							<option value="">Ingen</option>
+										}
+					</InputSelect>
+					@if (isConcurrencyVideo && concurrencyVideo?.DisplayId != video.DisplayId && concurrencyVideo?.DisplayId is not null)
+									{
+										<p style="color: red;">Database display tilknytning: @concurrencyVideo?.Display?.Name (ID: @concurrencyVideo?.Display?.Id)</p>
+									}
+								</div>
+								<div class="card-footer text-muted">
+									<button class="btn btn-outline-dark" @onclick="() => CancelUpdateVideoAsync()">Annuller</button>
+									<button type="submit" class="btn btn-success" @onclick="() => UpdateVideoAsync(video)">Gem</button>
+									<button class="btn btn-danger" @onclick="() => DeleteVideoAsync(video.Id)">Slet</button>
+								</div>
+							</EditForm>
+						</div>
+					</div>
+				}
+				else
+				{
+					<div class="col-6 col-sm-12 col-md-6 col-lg-4 col-xl-4 mh-25 mb-4">
+						<div class="card shadow-sm rounded">
+							<div class="card-header">
+								<h5 class="card-text"><b>@video.Name (ID: @video.Id)</b></h5>
+							</div>
+							<div class="card-body">
+								<p class="card-text">Beskrivelse: @video.Description</p>
+								<p class="card-text">Filtype: @video.FileType</p>
+								<p class="card-text">Filsti: @video.FilePath</p>
+								<p class="card-text">Filsti på undertekster: @video.SubtitlesPath</p>
+								<p class="card-text">Filsti på thumbnail: @video.ThumbnailPath</p>
+								<p class="card-text">Frames: @video.Frames</p>
+							</div>
+							<div class="card-footer text-muted">
+								<div style="float: left; padding-top: 8px;">
+									@if (video.Display is not null)
+									{
+										if (video.Display.IsOn)
+										{
+											<b class="card-text" style="color: green;">@video.Display.Name (TÆNDT)</b>
+										}
+										else
+										{
+											<b class="card-text" style="color: red;">@video.Display.Name (SLUKKET)</b>
+										}
+									}
+									else
+									{
+										<b class="card-text">Ingen</b>
+									}
+								</div>
+								<div style="float: right;">
+									<button class="btn btn-outline-success" @onclick="() => isEditingVideos = !isEditingVideos">Rediger</button>
+									<button class="btn btn-danger" @onclick="() => DeleteVideoAsync(video.Id)">Slet</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+
+			}
+		</div>
+	}
+}
+else
+{
+	<div class="spinner"></div>
+}
+
+<h3>Billeder</h3>
+<hr />
+@if (hasRendered)
+{
+	if (isEmptyImages)
+	{
+		<p>Ingen billeder i databasen.</p>
+	}
+	else
+	{
+		<div class="row">
+			@foreach (var image in images)
+			{
+				@if (isEditingImages)
+				{
+					<div class="col-6 col-sm-12 col-md-6 col-lg-4 col-xl-4 mh-25 mb-4">
+						<div class="card">
+							<EditForm Model="image">
+								<div class="card-header">
+									<InputText class="form-control" @bind-Value="image.Name" />
+									@if (isConcurrencyImage && concurrencyImage?.Name != image.Name)
+									{
+										<p style="color: red;">Database billede navn: @concurrencyImage?.Name</p>
+									}
+								</div>
+								<div class="card-body">
+									@if (isConcurrencyImage)
+									{
+										<p>Dette billede er blevet ændret imellemtiden af en anden bruger. Dato for ændringen: <b>@concurrencyImage?.UpdatedDate</b></p>
+										<p>Se databaseværdierne under inputfelterne markeret med rødt.</p>
+										<p>Ret til som nødvendigt i forhold til databaseværdierne, eller klik Annuller. Klik Gem igen for at gemme dine ændringer i databasen.</p>
+									}
+									<InputText class="form-control" @bind-Value="image.Description" />
+									@if (isConcurrencyImage && concurrencyImage?.Description != image.Description)
+									{
+										<p style="color: red;">Database billede beskrivelse: @concurrencyImage?.Description</p>
+									}
+									<br />
+									<InputText class="form-control" @bind-Value="image.FileType" />
+									@if (isConcurrencyImage && concurrencyImage?.FileType != image.FileType)
+									{
+										<p style="color: red;">Database billede filtype: @concurrencyImage?.FileType</p>
+									}
+									<br />
+									<InputText class="form-control" @bind-Value="image.FilePath" />
+									@if (isConcurrencyImage && concurrencyImage?.FilePath != image.FilePath)
+									{
+										<p style="color: red;">Database billede filsti: @concurrencyImage?.FilePath</p>
+									}
+									<br />
+									<b>Tilknytning til display:</b>
+									<InputSelect class="form-select" @bind-Value="image.DisplayId">
+										@if (image.DisplayId is null)
+										{
+							<option selected value="">Ingen</option>
+										}
+						@foreach (Display display in displays)
+										{
+							<option value="@display.Id">@display.Name (ID: @display.Id)</option>
+										}
+						@if (image.DisplayId is not null)
+										{
+							<option value="">Ingen</option>
+										}
+					</InputSelect>
+					@if (isConcurrencyImage && concurrencyImage?.DisplayId != image.DisplayId && concurrencyImage?.DisplayId is not null)
+									{
+										<p style="color: red;">Database display tilknytning: @(concurrencyImage.Display is not null ? $"{concurrencyImage.Display.Name} (ID: {concurrencyImage.Display.Id})" : "Ingen")</p>
+									}
+								</div>
+								<div class="card-footer text-muted">
+									<button class="btn btn-outline-dark" @onclick="() => CancelUpdateImageAsync()">Annuller</button>
+									<button type="submit" class="btn btn-success" @onclick="() => UpdateImageAsync(image)">Gem</button>
+									<button class="btn btn-danger" @onclick="() => DeleteImageAsync(image.Id)">Slet</button>
+								</div>
+							</EditForm>
+						</div>
+					</div>
+				}
+				else
+				{
+					<div class="col-6 col-sm-12 col-md-6 col-lg-4 col-xl-4 mh-25 mb-4">
+						<div class="card shadow-sm rounded">
+							<div class="card-header">
+								<h5 class="card-text"><b>@image.Name (ID: @image.Id)</b></h5>
+							</div>
+							<div class="card-body">
+								<p class="card-text">Beskrivelse: @image.Description</p>
+								<p class="card-text">Filtype: @image.FileType</p>
+								<p class="card-text">Filsti: @image.FilePath</p>
+							</div>
+							<div class="card-footer text-muted">
+								<div style="float: left; padding-top: 8px;">
+									@if (image.Display is not null)
+									{
+										if (image.Display.IsOn)
+										{
+											<b class="card-text" style="color: green;">@image.Display.Name (TÆNDT)</b>
+										}
+										else
+										{
+											<b class="card-text" style="color: red;">@image.Display.Name (SLUKKET)</b>
+										}
+									}
+									else
+									{
+										<b class="card-text">Ingen</b>
+									}
+								</div>
+								<div style="float: right;">
+									<button class="btn btn-outline-success" @onclick="() => isEditingImages = !isEditingImages">Rediger</button>
+									<button class="btn btn-danger" @onclick="() => DeleteImageAsync(image.Id)">Slet</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			}
+		</div>
+	}
+}
+else
+{
+	<div class="spinner"></div>
+}
+
+@code
+{
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; } = null!;
+
+	private bool hasRendered;
+	private bool isEmptyVideos;
+	private bool isEmptyImages;
+	private bool isEditingVideos;
+	private bool isEditingImages;
+	private bool isConcurrencyVideo;
+	private bool isConcurrencyImage;
+	private Video? concurrencyVideo;
+	private Image? concurrencyImage;
+	private List<Video> videos = new();
+	private List<Image> images = new();
+	private List<Display> displays = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		hasRendered = false;
+
+		try
+		{
+			await GetDisplaysAsync();
+			await GetVideosAsync();
+			await GetImagesAsync();
+		}
+		finally
+		{
+			hasRendered = true;
+		}
+	}
+
+	private async Task GetVideosAsync()
+	{
+		if (videos.Count is not 0)
+		{
+			videos.Clear();
+		}
+
+		try
+		{
+			IAsyncEnumerable<Video> result = VideoService.GetAllAsync();
+
+			await foreach (Video video in result)
+			{
+				videos.Add(video);
+				await InvokeAsync(StateHasChanged);
+			}
+		}
+		catch (Exception ex)
+		{
+			throw new Exception(ex.Message);
+		}
+		finally
+		{
+			if (videos.Count is 0)
+			{
+				isEmptyVideos = true;
+			}
+			else
+			{
+				isEmptyVideos = false;
+			}
+		}
+	}
+
+	private async Task GetImagesAsync()
+	{
+		if (images.Count is not 0)
+		{
+			images.Clear();
+		}
+
+		try
+		{
+			IAsyncEnumerable<Image> result = ImageService.GetAllAsync();
+
+			await foreach (Image image in result)
+			{
+				images.Add(image);
+				await InvokeAsync(StateHasChanged);
+			}
+		}
+		catch (Exception ex)
+		{
+			throw new Exception(ex.Message);
+		}
+		finally
+		{
+			if (images.Count is 0)
+			{
+				isEmptyImages = true;
+			}
+			else
+			{
+				isEmptyImages = false;
+			}
+		}
+	}
+
+	private async Task GetDisplaysAsync()
+	{
+		if (displays.Count is not 0)
+		{
+			displays.Clear();
+		}
+
+		try
+		{
+			IAsyncEnumerable<Display> result = DisplayService.GetAllAsync();
+
+			await foreach (Display display in result)
+			{
+				displays.Add(display);
+				await InvokeAsync(StateHasChanged);
+			}
+		}
+		catch (Exception ex)
+		{
+			throw new Exception(ex.Message);
+		}
+	}
+
+	private async Task DeleteVideoAsync(int id)
+	{
+		await VideoService.DeleteAsync(id);
+
+		AuthenticationState authState = await AuthState;
+		ClaimsPrincipal user = authState.User;
+
+		Log log = new()
+			{
+				UserId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+				Description = $"{user.FindFirst(ClaimTypes.Name)!.Value} har slettet videoen: {videos.FirstOrDefault(x => x.Id == id)!.Name} (ID: {id})."
+			};
+
+		await LogService.CreateAsync(log);
+
+		videos.RemoveAll(video => video.Id == id);
+	}
+
+	private async Task DeleteImageAsync(int id)
+	{
+		await ImageService.DeleteAsync(id);
+
+		AuthenticationState authState = await AuthState!;
+		ClaimsPrincipal user = authState.User;
+
+		Log log = new()
+			{
+				UserId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+				Description = $"{user.FindFirst(ClaimTypes.Name)!.Value} har slettet billedet: {images.FirstOrDefault(x => x.Id == id)!.Name} (ID: {id})."
+			};
+
+		await LogService.CreateAsync(log);
+
+		images.RemoveAll(image => image.Id == id);
+	}
+
+	private async Task UpdateVideoAsync(Video updatedVideo)
+	{
+		Video? databaseVideo = await VideoService.GetByIdAsync(updatedVideo.Id);
+
+		if (databaseVideo is null)
+		{
+			await InvokeAsync(StateHasChanged);
+			isEditingVideos = !isEditingVideos;
+			return;
+		}
+
+		if (databaseVideo.RowVersion!.SequenceEqual(updatedVideo.RowVersion!))
+		{
+			await VideoService.UpdateAsync(updatedVideo);
+
+			AuthenticationState authState = await AuthState;
+			ClaimsPrincipal user = authState.User;
+
+			Log log = new()
+				{
+					UserId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+					Description = $"{user.FindFirst(ClaimTypes.Name)!.Value} har ændret på videoen: {videos.FirstOrDefault(x => x.Id == updatedVideo.Id)!.Name} (ID: {updatedVideo.Id})."
+				};
+
+			await LogService.CreateAsync(log);
+			await GetVideosAsync();
+			isEditingVideos = !isEditingVideos;
+		}
+		else
+		{
+			isConcurrencyVideo = true;
+			concurrencyVideo = new();
+			concurrencyVideo = databaseVideo;
+			updatedVideo.RowVersion = databaseVideo.RowVersion;
+
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+	private async Task CancelUpdateVideoAsync()
+	{
+		await GetVideosAsync();
+		isEditingVideos = !isEditingVideos;
+	}
+
+	private async Task CancelUpdateImageAsync()
+	{
+		await GetImagesAsync();
+		isEditingImages = !isEditingImages;
+	}
+
+	private async Task UpdateImageAsync(Image updatedImage)
+	{
+		if (await ImageService.UpdateAsync(updatedImage) is not null)
+		{
+			AuthenticationState authState = await AuthState;
+			ClaimsPrincipal user = authState.User;
+
+			Log log = new()
+				{
+					UserId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+					Description = $"{user.FindFirst(ClaimTypes.Name)!.Value} har ændret på billedet: {images.FirstOrDefault(x => x.Id == updatedImage.Id)!.Name} (ID: {updatedImage.Id})."
+				};
+
+			await LogService.CreateAsync(log);
+			await GetImagesAsync();
+			isEditingImages = !isEditingImages;
+		}
+		else
+		{
+			Image? databaseImage = await ImageService.GetByIdAsync(updatedImage.Id);
+
+			if (databaseImage is null)
+			{
+				await InvokeAsync(StateHasChanged);
+			}
+
+			if (databaseImage?.RowVersion != updatedImage.RowVersion)
+			{
+				isConcurrencyImage = true;
+				concurrencyImage = new();
+				concurrencyImage = databaseImage;
+				updatedImage.RowVersion = databaseImage?.RowVersion;
+
+				await InvokeAsync(StateHasChanged);
+			}
+		}
+	}
+}

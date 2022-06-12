@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Innopixel.Kontrolpanel.MAUI.Views.Profile.ProfilePage"
+             xmlns:vm="clr-namespace:Innopixel.Kontrolpanel.MAUI.ViewModels.Profile"
+             xmlns:model="clr-namespace:Innopixel.Kontrolpanel.Core.Domain;assembly=Innopixel.Kontrolpanel.Core"
+             x:DataType="vm:ProfileViewModel"
+             Title="Min profil">
+
+	<ScrollView>
+		<StackLayout Spacing="10" Padding="10">
+			<Frame CornerRadius="5">
+				<StackLayout>
+					<Label Text="Navn" FontSize="25" FontAttributes="Bold" TextColor="White" />
+					<Label Text="{Binding UserName}" FontSize="20" TextColor="White" />
+				</StackLayout>
+			</Frame>
+
+			<Frame CornerRadius="5">
+				<StackLayout>
+					<Label Text="Email" FontSize="25" FontAttributes="Bold" TextColor="White" />
+					<Label Text="{Binding Email}" FontSize="20" TextColor="White" />
+				</StackLayout>
+			</Frame>
+
+			<Frame CornerRadius="5">
+				<StackLayout>
+					<Label Text="Brugertype" FontSize="25" FontAttributes="Bold" TextColor="White" />
+					<Label Text="{Binding Role}" FontSize="20" TextColor="White" />
+				</StackLayout>
+			</Frame>
+
+			<Frame CornerRadius="5">
+				<StackLayout Orientation="Horizontal">
+					<Label Text="{Binding IsDarkModeEnabledText}" VerticalOptions="Center" TextColor="White" />
+					<Switch HorizontalOptions="EndAndExpand" IsToggled="{Binding IsDarkModeEnabled}" ThumbColor="White" OnColor="LightGreen" />
+				</StackLayout>
+			</Frame>
+		</StackLayout>
+	</ScrollView>
+</ContentPage>

@@ -1,0 +1,143 @@
+﻿@page "/displays"
+@inject DisplayService DisplayService
+@inject LogService LogService
+@attribute [Authorize]
+
+<h3>Displays</h3>
+<hr />
+@if (hasRendered)
+{
+	<div class="row">
+		<Virtualize Context="display" Items="displays">
+			<div class="col-6">
+				<div class="card shadow-sm rounded">
+					<div class="card-header">
+						<h5 class="card-text"><b>@display.Name (ID: @display.Id) - @(display.IsOn ? "TÆNDT" : "SLUKKET")</b></h5>
+				</div>
+				<div class="card-body">
+					<center>
+						@foreach (Video video in display.Videos!)
+							{
+							<video style="width: 100%; height: 100%" controls poster="@video.ThumbnailPath">
+								<source src="@video.FilePath" type="video/mp4">
+							</video>
+							}
+						@foreach (Image image in display.Images!)
+							{
+							<img style="width: 100%; height: 100%" src="@image.FilePath" />
+							}
+					</center>
+					<p class="card-text">Beskrivelse: @display.Description</p>
+					<p class="card-text">Antal videoer tilknyttet displayet: @display.Videos.Count()</p>
+					<p class="card-text">Antal billeder tilknyttet displayet: @display.Images.Count()</p>
+				</div>
+				<div class="card-footer">
+					<label class="switch">
+						@if (display.IsOn)
+							{
+							<input type="checkbox" @onchange="@(x => DisplayOnChangedAsync(display, x.Value!))" checked>
+							}
+							else
+							{
+							<input type="checkbox" @onchange="@(x => DisplayOnChangedAsync(display, x.Value!))">
+							}
+						<span class="slider round"></span>
+					</label>
+					<div style="float: right;">
+						<button class="btn btn-outline-info">Info</button>
+						<button class="btn btn-outline-success">Rediger</button>
+						<button class="btn btn-danger">Slet</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</Virtualize>
+</div>
+}
+else
+{
+	<div class="spinner"></div>
+}
+<span style="color:red;">@errorMessage</span>
+
+@code
+{
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; } = null!;
+
+	private List<Display> displays = new();
+	private bool hasRendered;
+	private string errorMessage = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetDisplaysAsync();
+	}
+
+	private async Task GetDisplaysAsync()
+	{
+		if (displays.Count is not 0)
+		{
+			displays.Clear();
+		}
+
+		hasRendered = false;
+
+		try
+		{
+			IAsyncEnumerable<Display> result = DisplayService.GetAllAsync();
+
+			await foreach (Display display in result)
+			{
+				await InvokeAsync(() =>
+				{
+					displays.Add(display);
+					StateHasChanged();
+				});
+			}
+		}
+		catch (Exception ex)
+		{
+			errorMessage = ex.Message;
+		}
+		finally
+		{
+			hasRendered = true;
+		}
+	}
+
+	private async Task DeleteDisplayAsync(int id)
+	{
+		await DisplayService.DeleteAsync(id);
+
+		AuthenticationState authState = await AuthState;
+		ClaimsPrincipal user = authState.User;
+
+		Log log = new()
+		{
+			UserId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+			Description = $"{user.FindFirst(ClaimTypes.Name)!.Value} har slettet displayet: {displays.FirstOrDefault(x => x.Id == id)!.Name} (ID: {id})."
+		};
+		
+		await LogService.CreateAsync(log);
+
+		displays.RemoveAll(display => display.Id == id);
+	}
+
+	private async Task DisplayOnChangedAsync(Display display, object objectValue)
+	{
+		display.IsOn = (bool)objectValue;
+		await DisplayService.UpdateAsync(display);
+
+		AuthenticationState authState = await AuthState;
+		ClaimsPrincipal user = authState.User;
+
+		Log log = new()
+		{
+			UserId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+			Description = $"{user.FindFirst(ClaimTypes.Name)!.Value} har {((bool)objectValue ? "TÆNDT" : "SLUKKET")} for displayet: {displays.FirstOrDefault(x => x.Id == display.Id)!.Name} (ID: {display.Id})."
+		};
+
+		await LogService.CreateAsync(log);
+	}
+}

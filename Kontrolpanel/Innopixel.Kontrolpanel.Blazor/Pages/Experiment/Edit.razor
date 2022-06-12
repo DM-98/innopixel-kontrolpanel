@@ -1,0 +1,130 @@
+﻿@page "/edit"
+@inject DisplayService DisplayService
+@inject VideoService VideoService
+@inject ImageService ImageService
+@inject LogService LogService
+
+<h3>Edit Display</h3>
+<hr />
+@if (display is null)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <EditForm Model="@display" OnValidSubmit="UpdateDisplayAsync">
+        <InputText class="form-control" @bind-Value="display.Name" /> <br />
+        <InputText class="form-control" @bind-Value="display.Description" /> <br />
+        <button type="submit" class="btn btn-success">Gem</button>
+    </EditForm> 
+    <br />
+}
+
+<h3>Edit Video</h3>
+<hr />
+@if (video is null)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <EditForm Model="@video" OnValidSubmit="UpdateVideoAsync">
+        <InputText class="form-control" @bind-Value="video.Name" /> <br />
+        <InputText class="form-control" @bind-Value="video.Description" /> <br />
+        <InputText class="form-control" @bind-Value="video.FilePath" /> <br />
+        <InputNumber class="form-control" @bind-Value="video.Frames" /> <br />
+        <InputNumber class="form-control" @bind-Value="video.DisplayId" /> <br />
+        <button type="submit" class="btn btn-success">Gem</button>
+    </EditForm> 
+    <br />
+}
+<h3>Edit Image</h3>
+<hr />
+@if (image is null)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <EditForm Model="@image" OnValidSubmit="UpdateImageAsync">
+        <InputText class="form-control" @bind-Value="image.Name" /> <br />
+        <InputText class="form-control" @bind-Value="image.Description" /> <br />
+        <InputText class="form-control" @bind-Value="image.FilePath" /> <br />
+        <InputNumber class="form-control" @bind-Value="image.DisplayId" /> <br />
+        <button type="submit" class="btn btn-success">Gem</button>
+    </EditForm> 
+}
+<br />
+<h3>Edit Log</h3>
+<hr />
+@if (log is null)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <EditForm Model="@log" OnValidSubmit="UpdateLogAsync">
+        <InputText class="form-control" @bind-Value="log.Description" /> <br />
+        <InputText class="form-control" @bind-Value="log.UserId" /> <br />
+        <button type="submit" class="btn btn-success">Gem</button>
+    </EditForm>
+}
+
+@code {
+    Display? display = new();
+    Video? video = new();
+    Image? image = new();
+    Log? log = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        display = await DisplayService.GetByIdAsync(3)!;
+        video = await VideoService.GetByIdAsync(17)!;
+        image = await ImageService.GetByIdAsync(4)!;
+        log = await LogService.GetByIdAsync(38)!;
+    }
+
+    private async Task UpdateDisplayAsync()
+    {
+        Display? updatedDisplay = await DisplayService.UpdateAsync(display!);
+
+        if (updatedDisplay is not null)
+        {
+            display = updatedDisplay;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task UpdateVideoAsync()
+    {
+        Video? updatedVideo = await VideoService.UpdateAsync(video!);
+
+        if (updatedVideo is not null)
+        {
+            video = updatedVideo;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task UpdateImageAsync()
+    {
+        Image? updatedImage = await ImageService.UpdateAsync(image!);
+
+        if (updatedImage is not null)
+        {
+            image = updatedImage;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task UpdateLogAsync()
+    {
+        Log? updatedLog = await LogService.UpdateAsync(log!);
+
+        if (updatedLog is not null)
+        {
+            log = updatedLog;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

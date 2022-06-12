@@ -1,0 +1,11 @@
+﻿@page "/profil"
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <h3>Min profil</h3>
+        <b>Brugernavn:</b> <p>@(context.User.FindFirst(ClaimTypes.Name)!.Value)</p>
+        <b>Email:</b> <p>@(context.User.FindFirst(ClaimTypes.Email)!.Value)</p>
+        <b>Brugertype:</b> <p>@(context.User.FindFirst(ClaimTypes.Role)!.Value)</p>
+    </Authorized>
+</AuthorizeView>
