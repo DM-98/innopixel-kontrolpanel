@@ -18,9 +18,11 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
+      working-directory: ./Kontrolpanel
       run: dotnet restore
     - name: Build
+      working-directory: ./Kontrolpanel
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
       working-directory: ./Kontrolpanel
+      run: dotnet test --no-build --verbosity normal
