@@ -26,6 +26,6 @@ jobs:
     - name: Build
       working-directory: ./Kontrolpanel/Innopixel.Kontrolpanel.API
       run: dotnet build --no-restore
-    - name: Test
-      working-directory: ./Kontrolpanel/Innopixel.Kontrolpanel.API
+    - name: Unit Test
+      working-directory: ./Kontrolpanel/Innopixel.Kontrolpanel.UnitTests
       run: dotnet test --no-build --verbosity normal
